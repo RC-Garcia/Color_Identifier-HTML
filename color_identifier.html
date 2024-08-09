@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Identifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        #color-info {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Color Identifier</h1>
+    <p>Upload an image and click on any point to get the color in hexadecimal format.</p>
+
+    <input type="file" id="imageLoader" name="imageLoader" />
+    <canvas id="imageCanvas"></canvas>
+    <div id="color-info">
+        <p>Selected Color: <span id="colorHex">N/A</span></p>
+    </div>
+
+    <script>
+        const imageLoader = document.getElementById('imageLoader');
+        const imageCanvas = document.getElementById('imageCanvas');
+        const ctx = imageCanvas.getContext('2d');
+        const colorHex = document.getElementById('colorHex');
+
+        imageLoader.addEventListener('change', handleImage, false);
+
+        function handleImage(e) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    imageCanvas.width = img.width;
+                    imageCanvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+
+        imageCanvas.addEventListener('click', function(event) {
+            const x = event.offsetX;
+            const y = event.offsetY;
+            const imgData = ctx.getImageData(x, y, 1, 1).data;
+            const hex = rgbToHex(imgData[0], imgData[1], imgData[2]);
+            colorHex.textContent = hex;
+        });
+
+        function rgbToHex(r, g, b) {
+            return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        }
+
+        function componentToHex(c) {
+            const hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
+    </script>
+</body>
+</html>
